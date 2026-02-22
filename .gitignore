@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+*.spec
+*.log
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# PyInstaller build artifacts
+build/
+*.pkg
+*.toc
+*.pyz
+*.zip
+localpycs/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Config / secrets
+config.json
+*.key
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
