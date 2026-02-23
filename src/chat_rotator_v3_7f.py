@@ -40,16 +40,67 @@ def _init_cb() -> bool:
     except: pass
     return False
 
+def _html_to_text(html: str) -> str:
+    """CF_HTML形式からプレーンテキストを抽出"""
+    import re as _re, html as _htmlmod
+    # StartFragment～EndFragmentを抽出
+    m = _re.search(r'<!--StartFragment-->(.*?)<!--EndFragment-->', html, _re.DOTALL)
+    body = m.group(1) if m else html
+    # imgタグ・scriptタグを除去
+    body = _re.sub(r'<(img|script|style)[^>]*>.*?</\1>', '', body, flags=_re.DOTALL|_re.I)
+    body = _re.sub(r'<(img|script)[^>]*/?>','', body, flags=_re.I)
+    # ブロック要素を改行に変換
+    body = _re.sub(r'</(p|div|li|tr|h[1-6])>', '\n', body, flags=_re.I)
+    body = _re.sub(r'<br\s*/?>', '\n', body, flags=_re.I)
+    # タグ除去
+    body = _re.sub(r'<[^>]+>', '', body)
+    # エンティティデコード
+    body = _htmlmod.unescape(body)
+    # 空白整理
+    body = _re.sub(r'[ \t]+', ' ', body)
+    body = _re.sub(r'\n{3,}', '\n\n', body)
+    return body.strip()
+
 def _get_cb() -> str:
+    # まずプレーンテキストを取得
+    plain = ""
     if _cb_backend == "pyperclip":
-        import pyperclip; return pyperclip.paste() or ""
+        import pyperclip
+        plain = pyperclip.paste() or ""
     elif _cb_backend == "tkinter":
         import tkinter as tk
         r = tk.Tk(); r.withdraw()
-        try: return r.clipboard_get()
-        except: return ""
+        try: plain = r.clipboard_get()
+        except: plain = ""
         finally: r.destroy()
-    return ""
+
+    if plain.strip():
+        return plain
+
+    # プレーンテキストが空 → CF_HTMLフォールバック（Windows pywin32）
+    try:
+        import win32clipboard
+        win32clipboard.OpenClipboard(0)
+        try:
+            fmt = win32clipboard.RegisterClipboardFormat("HTML Format")
+            if win32clipboard.IsClipboardFormatAvailable(fmt):
+                raw = win32clipboard.GetClipboardData(fmt)
+                html = raw.decode('utf-8', errors='replace') if isinstance(raw, bytes) else str(raw)
+                text = _html_to_text(html)
+                if text.strip():
+                    print(f"[DEBUG] CF_HTML fallback: {len(text)} chars", flush=True)
+                    return text
+        finally:
+            win32clipboard.CloseClipboard()
+    except ImportError:
+        pass  # pywin32未インストール
+    except Exception as e:
+        print(f"[DEBUG] CF_HTML error: {e}", flush=True)
+
+    if not plain.strip():
+        print("[DEBUG] _get_cb: clipboard empty", flush=True)
+    return plain
+
 
 def _set_cb(text: str):
     if _cb_backend == "pyperclip":
@@ -752,7 +803,6 @@ class ClipboardMonitor:
         r'(sk-[A-Za-z0-9]{20,})'           # OpenAI APIキー
         r'|(AKIA[A-Z0-9]{16})'              # AWS アクセスキー
         r'|(eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,})' # JWT
-        r'|([A-Za-z0-9+/]{40,}={0,2})'     # Base64長文字列（トークン系）
         r'|(ghp_[A-Za-z0-9]{36})'          # GitHub PAT
         r'|(xoxb-[A-Za-z0-9-]{50,})'       # Slack Bot Token
         r'|(AIza[A-Za-z0-9_-]{35})'        # Google API Key
@@ -788,7 +838,9 @@ class ClipboardMonitor:
         clean=PromptBuilder.strip_signature(text)
 
         # 機密文字列ガード（APIキー・JWT・トークン類は保存しない）
-        if ClipboardMonitor._SENSITIVE_PATTERNS.search(clean):
+        _sm=ClipboardMonitor._SENSITIVE_PATTERNS.search(clean)
+        if _sm:
+            print(f"[DEBUG] sensitive blocked: service={service} pattern={_sm.group()[:40]!r}", flush=True)
             if self.on_new: self.on_new("sensitive", "⚠️", clean[:40])
             return  # 保存せずスキップ
 
@@ -2355,7 +2407,7 @@ class MainWindow(QMainWindow):
         v.addWidget(cb)
 
         bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        bb.setStyleSheet(STYLE)
+        bb.setStyleSheet("QPushButton { background:#252525; border:1px solid #383838; border-radius:4px; color:#cccccc; font-size:12px; padding:3px 12px; } QPushButton:hover { background:#2e2e2e; }")
         bb.accepted.connect(dlg.accept); bb.rejected.connect(dlg.reject)
         v.addWidget(bb)
 
@@ -2506,7 +2558,7 @@ class MainWindow(QMainWindow):
         dv.addWidget(sel_row)
 
         # ── ボタン行 ──────────────────────────────────────────────────
-        bb=QDialogButtonBox(); bb.setStyleSheet(STYLE)
+        bb=QDialogButtonBox(); bb.setStyleSheet("QPushButton { background:#252525; border:1px solid #383838; border-radius:4px; color:#cccccc; font-size:12px; padding:3px 12px; } QPushButton:hover { background:#2e2e2e; }")
         run_btn=bb.addButton("▶  RUN ANALYSIS",QDialogButtonBox.ButtonRole.AcceptRole)
         run_btn.setObjectName("btn_primary")
         bb.addButton("キャンセル",QDialogButtonBox.ButtonRole.RejectRole)

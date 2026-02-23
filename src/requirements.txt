@@ -4,3 +4,6 @@ pyperclip>=1.8.0
 
 # PDF対応（任意）
 # pypdf>=3.0.0
+
+# Windows CF_HTML取得用（画像埋め込み回答の取り込みに必要）
+pywin32>=306; sys_platform == "win32"
