@@ -5,6 +5,17 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)]()
+[![Release](https://img.shields.io/github/v/release/RogoAI-Takeji/260222_RogoAI_Chat_Rotator)](https://github.com/RogoAI-Takeji/260222_RogoAI_Chat_Rotator/releases/latest)
+
+---
+
+## ダウンロード
+
+**exeをそのまま使いたい方はこちら：**
+
+[📦 最新版をダウンロード（exe）](https://github.com/RogoAI-Takeji/260222_RogoAI_Chat_Rotator/releases/latest)
+
+> Python不要。ダウンロードして解凍するだけで起動できます。
 
 ---
 
@@ -35,6 +46,7 @@
 ### Local LLM 対応
 - OLLAMA / LM Studio に自動送信
 - 画像認識モデル（MoonDream・Llava-phi3 等）対応
+- **画像埋め込み回答（CF_HTML形式）の取り込みに対応**
 - Local LLMのみAPIや自動処理の制約なし
 
 ---
@@ -52,14 +64,17 @@
 
 ```bash
 # 1. リポジトリをクローン
-git clone https://github.com/rogoai/260222_RogoAI_Chat_Rotator.git
+git clone https://github.com/RogoAI-Takeji/260222_RogoAI_Chat_Rotator.git
 cd 260222_RogoAI_Chat_Rotator
 
 # 2. 依存パッケージをインストール
 pip install -r src/requirements.txt
 
+# Windows: 画像埋め込み回答取り込みに必要
+pip install pywin32
+
 # 3. アプリを起動
-python src/rogoai_chat_rotator.py
+python src/chat_rotator_v3_7f.py
 ```
 
 ---

@@ -5,6 +5,17 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)]()
+[![Release](https://img.shields.io/github/v/release/RogoAI-Takeji/260222_RogoAI_Chat_Rotator)](https://github.com/RogoAI-Takeji/260222_RogoAI_Chat_Rotator/releases/latest)
+
+---
+
+## Download
+
+**Just want to run the exe?**
+
+[📦 Download Latest Release](https://github.com/RogoAI-Takeji/260222_RogoAI_Chat_Rotator/releases/latest)
+
+> No Python required. Download, unzip, and run.
 
 ---
 
@@ -35,6 +46,7 @@
 ### Local LLM Support
 - Auto-send to OLLAMA and LM Studio (no manual steps needed)
 - Vision model support (MoonDream, Llava-phi3, etc.)
+- **CF_HTML clipboard support** — captures ChatGPT responses that include images
 - No API or automation restrictions for Local LLMs
 
 ### File Attachment
@@ -57,17 +69,20 @@
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/rogoai/260222_RogoAI_Chat_Rotator.git
+git clone https://github.com/RogoAI-Takeji/260222_RogoAI_Chat_Rotator.git
 cd 260222_RogoAI_Chat_Rotator
 
 # 2. Install dependencies
 pip install -r src/requirements.txt
 
+# Windows: required for capturing image-embedded responses (CF_HTML)
+pip install pywin32
+
 # Optional: PDF support
 pip install pypdf
 
 # 3. Launch
-python src/chat_rotator_v3_7c.py
+python src/chat_rotator_v3_7f.py
 ```
 
 ---
